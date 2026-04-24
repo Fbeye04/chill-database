@@ -10,6 +10,11 @@ export const getMoviesById = async (id) => {
     "SELECT * FROM series_film WHERE id_seriesfilm = ?",
     [id],
   );
+
+  if (row.length === 0) {
+    throw { status: 404, message: "Movie not found!" };
+  }
+
   return rows[0];
 };
 
@@ -24,7 +29,13 @@ export const updateMovie = async (id, newData) => {
     "UPDATE series_film SET ? WHERE id_seriesfilm = ?",
     [newData, id], // walaupun di parameter id duluan tapi di query harus sesuai dengan urutan query
   );
-  return result.affectedRows;
+
+  // kenapa tidak menggunakan length? karena memang hasilnya bukan array, ini perintah ke database langsung melainkan objek laporan
+  if (result.affectedRows === 0) {
+    throw { status: 404, message: "Movie not found to update!" };
+  }
+
+  return { message: "Movie updated successfully" };
 };
 
 export const deleteMovie = async (id) => {
@@ -32,5 +43,10 @@ export const deleteMovie = async (id) => {
     "DELETE FROM series_film WHERE id_seriesfilm = ?",
     [id],
   );
-  return result.affectedRows;
+
+  if (result.affectedRows === 0) {
+    throw { status: 404, message: "Movie not found to delete!" };
+  }
+
+  return { message: "Movie deleted successfully" };
 };

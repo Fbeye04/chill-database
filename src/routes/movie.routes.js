@@ -13,13 +13,13 @@ router.get("/", async (req, res) => {
   try {
     const movies = await getAllMovies();
 
-    res.json({
+    res.status(200).json({
+      message: "Successfully got all movies",
       data: movies,
     });
   } catch (error) {
-    res.status(500).json({
-      message:
-        "failed to fetch movies list, something went wrong on the server",
+    return res.status(500).json({
+      message: "Failed to get movies, server error",
       error: error.message,
     });
   }
@@ -30,19 +30,17 @@ router.get("/:id", async (req, res) => {
     const idMovie = req.params.id;
     const movie = await getMoviesById(idMovie);
 
-    if (!movie) {
-      return res.status(404).json({
-        message: "movie not found",
-      });
-    }
-
-    res.json({
+    res.status(200).json({
+      message: "Successfully got all movies",
       data: movie,
     });
   } catch (error) {
-    res.status(500).json({
-      message:
-        "failed to fetch the requested movie, something went wrong on the server",
+    if (error.status) {
+      return res.status(error.status).json({ message: error.message });
+    }
+
+    return res.status(500).json({
+      message: "Failed to get movie, server error",
       error: error.message,
     });
   }
@@ -58,7 +56,7 @@ router.post("/", async (req, res) => {
       id: newId,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: "failed to add the movie, something went wrong on the server",
       error: error.message,
     });
@@ -71,18 +69,15 @@ router.patch("/:id", async (req, res) => {
     const newMovie = req.body;
     const letsUpdate = await updateMovie(idMovie, newMovie); // jgn kaget, emang ini sesuai sama parameter bukan query
 
-    if (letsUpdate === 0) {
-      return res.status(404).json({
-        message: "movie not found",
-      });
-    } else {
-      return res.status(200).json({
-        message: "movie successfully updated",
-        id: idMovie,
-      });
-    }
+    res.status(200).json({
+      message: letsUpdate.message,
+    });
   } catch (error) {
-    res.status(500).json({
+    if (error.status) {
+      return res.status(error.status).json({ message: error.message });
+    }
+
+    return res.status(500).json({
       message: "failed to update movie, something went wrong on the server",
       error: error.message,
     });
@@ -94,18 +89,15 @@ router.delete("/:id", async (req, res) => {
     const idMovie = req.params.id;
     const letsDelete = await deleteMovie(idMovie);
 
-    if (letsDelete === 0) {
-      return res.status(404).json({
-        message: "movie not found",
-      });
-    } else {
-      return res.status(200).json({
-        message: "movie successfully deleted",
-        id: idMovie,
-      });
-    }
+    res.status(200).json({
+      message: letsDelete.message,
+    });
   } catch (error) {
-    res.status(500).json({
+    if (error.status) {
+      return res.status(error.status).json({ message: error.message });
+    }
+
+    return res.status(500).json({
       message: "failed to delete movie, something went wrong on the server",
       error: error.message,
     });

@@ -30,7 +30,50 @@ export const loginUser = async (username, password) => {
     throw { status: 401, message: "Wrong password, try again!" };
   }
 
+  // ini adalah kode yang memotong agar saat login berhasil, nantinya password yang sudah di hash tidak muncul di pesan berhasilnya untuk menjaga kerahasiaan
   const { password: passwordDB, ...userWithoutPassword } = result[0];
 
   return userWithoutPassword;
+};
+
+// disini data yang diambil langsung tanpa password sehingga tidak perlu seperti cara di atas namun alasannya karena ...
+export const getUserProfile = async (id) => {
+  const [result] = await db.query(
+    "SELECT id_user, username, email, foto_profil FROM user WHERE id_user = ?",
+    [id],
+  );
+
+  if (result.length === 0) {
+    throw { status: 404, message: "User not found!" };
+  }
+
+  return result[0];
+};
+
+export const updateUserProfile = async (id, newData) => {
+  const [result] = await db.query("SELECT * FROM user WHERE id_user = ?", [id]);
+
+  if (result.length === 0) {
+    throw { status: 404, message: "User not found!" };
+  }
+
+  const oldData = result[0];
+
+  const finalUsername = newData.username || oldData.username;
+  const finalEmail = newData.email || oldData.email;
+  const finalPhoto = newData.foto_profil || oldData.foto_profil;
+
+  let finalPassword = oldData.password;
+
+  if (newData.password) {
+    const saltRounds = 10;
+    finalPassword = await bcrypt.hash(newData.password, saltRounds);
+  }
+
+  await db.query(
+    "UPDATE user SET username = ?, email = ?, password = ?, foto_profil = ? WHERE id_user = ?",
+    [finalUsername, finalEmail, finalPassword, finalPhoto, id],
+  );
+
+  return { message: "Profile updated successfully" };
 };
