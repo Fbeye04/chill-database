@@ -4,6 +4,7 @@ import cors from "cors";
 import db from "./src/config/db.js";
 import movieRoutes from "./src/routes/movie.routes.js";
 import userRoutes from "./src/routes/user.routes.js";
+import mylistRoutes from "./src/routes/mylist.routes.js";
 
 const app = express();
 const port = 5001;
@@ -13,6 +14,7 @@ app.use(express.json());
 
 app.use("/api/movies", movieRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/mylist", mylistRoutes);
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

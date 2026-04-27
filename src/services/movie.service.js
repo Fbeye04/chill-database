@@ -11,7 +11,7 @@ export const getMoviesById = async (id) => {
     [id],
   );
 
-  if (row.length === 0) {
+  if (rows.length === 0) {
     throw { status: 404, message: "Movie not found!" };
   }
 
