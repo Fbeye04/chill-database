@@ -2,24 +2,13 @@ import db from "../config/db.js";
 
 export const getAllMovies = async () => {
   const [rows] = await db.query("SELECT * FROM series_film");
+
   return rows;
-};
-
-export const getMoviesById = async (id) => {
-  const [rows] = await db.query(
-    "SELECT * FROM series_film WHERE id_seriesfilm = ?",
-    [id],
-  );
-
-  if (rows.length === 0) {
-    throw { status: 404, message: "Movie not found!" };
-  }
-
-  return rows[0];
 };
 
 export const addMovie = async (movieData) => {
   const [result] = await db.query("INSERT INTO series_film SET ?", [movieData]);
+
   return result.insertId;
 };
 
@@ -49,4 +38,34 @@ export const deleteMovie = async (id) => {
   }
 
   return { message: "Movie deleted successfully" };
+};
+
+export const getMovieDetail = async (id) => {
+  // ini akan mengambil semua data dari movie yang terpilih berdasarkan id (kalau lupa, coba lihat apa saja isinya di tabel database)
+  const [masterRows] = await db.query(
+    "SELECT * FROM series_film WHERE id_seriesfilm = ?",
+    [id],
+  );
+
+  // kalau movie yang terpilih berdasarkan id itu tidak ada di dalam tabel maka akan dilemparkan error karena dia ghoib
+  if (masterRows.length === 0) {
+    throw {
+      status: 404,
+      message: "Series/film is not found",
+    };
+  }
+
+  // barulah disini dari id movie tadi, diambil isi data episode/movie dari id tersebut (bisa lihat apa saja data yang ada di database)
+  const [episodeRows] = await db.query(
+    "SELECT * FROM episode_movie WHERE id_seriesfilm = ? ORDER BY urutan_episode ASC",
+    [id],
+  );
+
+  // mengeluarkan data movie tadi dari array nya sehingga tersisa objek saja
+  const movieData = masterRows[0];
+  // baru lah disini data episode rows itu digabungkan sebagai bagian dari objek movie data tadi dengan nama episodes
+  movieData.episodes = episodeRows;
+
+  // makanya disini itu yang dipanggil lagi adalah movie data karena sudah menampung semuanya
+  return movieData;
 };

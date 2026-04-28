@@ -1,10 +1,10 @@
 import express from "express";
 import {
   getAllMovies,
-  getMoviesById,
   addMovie,
   updateMovie,
   deleteMovie,
+  getMovieDetail,
 } from "../services/movie.service.js";
 
 const router = express.Router();
@@ -20,27 +20,6 @@ router.get("/", async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       message: "Failed to get movies, server error",
-      error: error.message,
-    });
-  }
-});
-
-router.get("/:id", async (req, res) => {
-  try {
-    const idMovie = req.params.id;
-    const movie = await getMoviesById(idMovie);
-
-    res.status(200).json({
-      message: "Successfully got all movies",
-      data: movie,
-    });
-  } catch (error) {
-    if (error.status) {
-      return res.status(error.status).json({ message: error.message });
-    }
-
-    return res.status(500).json({
-      message: "Failed to get movie, server error",
       error: error.message,
     });
   }
@@ -99,6 +78,30 @@ router.delete("/:id", async (req, res) => {
 
     return res.status(500).json({
       message: "failed to delete movie, something went wrong on the server",
+      error: error.message,
+    });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const idSeriesFilm = req.params.id;
+    const getDetail = await getMovieDetail(idSeriesFilm);
+
+    res.status(200).json({
+      message: "Successfully got the movie details",
+      data: getDetail,
+    });
+  } catch (error) {
+    if (error.status) {
+      return res.status(error.status).json({
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      message:
+        "Failed to get the movie details. Something went wrong on the server",
       error: error.message,
     });
   }
