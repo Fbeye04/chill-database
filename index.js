@@ -8,7 +8,7 @@ import mylistRoutes from "./src/routes/mylist.routes.js";
 import episodeRoutes from "./src/routes/episode.routes.js";
 
 const app = express();
-const port = 5001;
+const port = process.env.PORT || 5001;
 
 app.use(cors());
 app.use(express.json());
